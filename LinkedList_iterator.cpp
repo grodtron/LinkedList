@@ -11,7 +11,7 @@ LinkedList<T>::iterator::iterator() : LinkedList<T>::iterator(NULL) {}
 // pre
 template <typename T>
 typename LinkedList<T>::iterator & LinkedList<T>::iterator::operator++(){
-   ++current;
+   current = current->next;
    return * this;
 }
 
@@ -19,7 +19,7 @@ typename LinkedList<T>::iterator & LinkedList<T>::iterator::operator++(){
 template <typename T>
 typename LinkedList<T>::iterator LinkedList<T>::iterator::operator++(int){
    LinkedList<T>::iterator temp = LinkedList<T>::iterator(current);
-   ++current;
+   current = current->next;
    return temp;
 }
 

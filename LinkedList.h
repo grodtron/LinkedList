@@ -102,10 +102,13 @@ class LinkedList {
       void addLast(const T&);
 
       void addAfter(const T&, const LinkedList::iterator &);
-      void addBefore(const T&, const LinkedList::iterator &);
+      void addBefore(const T&, LinkedList::iterator &);
 
       void remove(const LinkedList::iterator &);
 
 };
+
+#include "LinkedList.cpp"
+#include "LinkedList_iterator.cpp"
 
 #endif

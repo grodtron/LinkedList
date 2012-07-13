@@ -7,12 +7,12 @@
 // construct a list of a given size
 template <typename T>
 LinkedList<T>::LinkedList(int size)
-   : nextFreeNode(new LinkedList<T>::node[size]),
-     lastFreeNode(nextFreeNode + (size - 1)),
-     head(new LinkedList<T>::node),
+   : head(new LinkedList<T>::node),
      tail(head),
      memhead(new LinkedList<T>::memnode),
-     lastMemblockSize(size)
+     lastMemblockSize(size),
+     nextFreeNode(new LinkedList<T>::node[size]),
+     lastFreeNode(nextFreeNode + (size - 1))
 {
    head->next = NULL;
    memhead->next = NULL;
@@ -41,18 +41,21 @@ struct LinkedList<T>::node * LinkedList<T>::getNode(){
       looseFreeNodes = newNode->next;
 
    // then if not, take it from our current block
-   }else if(nextFreeNode <= lastFreeNode){
+   }else{
+      assert(nextFreeNode <= lastFreeNode);
 
       newNode = nextFreeNode;
       ++nextFreeNode;
    }
+
+   return newNode;
 }
 
 template<typename T>
 void LinkedList<T>::returnNode(struct LinkedList<T>::node * oldNode){
 
    // keep a nice little list of free nodes ready to be reused
-   oldNode->next = looseFreeNodes->next;
+   oldNode->next = looseFreeNodes;
    looseFreeNodes = oldNode;
 }
 
@@ -64,6 +67,8 @@ void LinkedList<T>::addFirst(const T & element){
    newNode->value = element;
    newNode->next = head->next;
    head->next = newNode;
+
+   if(tail == head) tail = newNode;
 
 }
 
@@ -104,7 +109,7 @@ void LinkedList<T>::addAfter(const T& element, const LinkedList::iterator & posi
 }
 
 template <typename T>
-void LinkedList<T>::addBefore(const T& element, const LinkedList::iterator & position){
+void LinkedList<T>::addBefore(const T& element, LinkedList::iterator & position){
    struct LinkedList<T>::node * newNode = getNode();
 
    newNode->next = position.current->next;
