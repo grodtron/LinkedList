@@ -1,5 +1,7 @@
 #include "LinkedList.h"
 
+#include <cassert>
+
 #define DEFAULT_SIZE 8
 
 // construct a list of a given size
@@ -27,25 +29,37 @@ LinkedList<T>::~LinkedList()
    // TODO
 }
 
-// TODO - factor out acquiring a new free node to a seperate
-// member function
-//
-// is it worth making this static? Adds a LOT of complexity to
-// memory management....
-
 template<typename T>
-void LinkedList<T>::addFirst(T & element){
+struct LinkedList<T>::node * LinkedList<T>::getNode(){
 
    struct LinkedList<T>::node * newNode;
 
-   if(nextFreeNode <= lastFreeNode){
+   // first check in our list of random
+   if(looseFreeNodes){
+
+      newNode = looseFreeNodes;
+      looseFreeNodes = newNode->next;
+
+   // then if not, take it from our current block
+   }else if(nextFreeNode <= lastFreeNode){
+
       newNode = nextFreeNode;
       ++nextFreeNode;
-   }else{
-      // TODO - allocate more memory
-      // also have to make sure to check for failures to
-      // allocate and then handle that somehow
    }
+}
+
+template<typename T>
+void LinkedList<T>::returnNode(struct LinkedList<T>::node * oldNode){
+
+   // keep a nice little list of free nodes ready to be reused
+   oldNode->next = looseFreeNodes->next;
+   looseFreeNodes = oldNode;
+}
+
+template<typename T>
+void LinkedList<T>::addFirst(const T & element){
+
+   struct LinkedList<T>::node * newNode = getNode();
 
    newNode->value = element;
    newNode->next = head->next;
@@ -54,18 +68,10 @@ void LinkedList<T>::addFirst(T & element){
 }
 
 template<typename T>
-void LinkedList<T>::addLast(T & element){
+void LinkedList<T>::addLast(const T & element){
 
-   struct LinkedList<T>::node * newNode;
+   struct LinkedList<T>::node * newNode = getNode();
 
-   if(nextFreeNode <= lastFreeNode){
-      newNode = nextFreeNode;
-      ++nextFreeNode;
-   }else{
-      // TODO - allocate more memory
-      // also have to make sure to check for failures to
-      // allocate and then handle that somehow
-   }
 
    newNode->value = element;
    newNode->next = NULL;
@@ -74,76 +80,45 @@ void LinkedList<T>::addLast(T & element){
 
 }
 
-#ifndef LINKEDLIST_H
-#define LINKEDLIST_H
-
-#include <iterator>
+// Iterators!
 
 template <typename T>
-class LinkedList {
-   private:
+typename LinkedList<T>::iterator LinkedList<T>::begin(){
+   return LinkedList<T>::iterator(head);
+}
 
-      //////////////////////////////////////////////////////
-      //                                                  //
-      //                     Data Stuff                   //
-      //                                                  //
-      //////////////////////////////////////////////////////
+template <typename T>
+typename LinkedList<T>::iterator LinkedList<T>::end(){
+   return LinkedList<T>::iterator(tail);
+}
 
-      // the actual struct that is gonna be used in the list
-      struct node{
-         struct node * next;
-         T & value;
-      };
+// Insertions!!
 
-      // head of the data
-      struct node * head;
-      // head of the data
-      struct node * tail;
+template <typename T>
+void LinkedList<T>::addAfter(const T& element, const LinkedList::iterator & position){
+   struct LinkedList<T>::node * newNode = getNode();
 
-      // the length of the list
-      unsigned long length;
+   newNode->next = position.current->next->next;
+   position.current->next->next = newNode;
+   newNode->value = element;
+}
 
-      //////////////////////////////////////////////////////
-      //                                                  //
-      //                    Memory Stuff                  //
-      //                                                  //
-      //////////////////////////////////////////////////////
+template <typename T>
+void LinkedList<T>::addBefore(const T& element, const LinkedList::iterator & position){
+   struct LinkedList<T>::node * newNode = getNode();
 
-      // this will make another internal linked list to manage
-      // memory
-      struct memnode{
-         struct node * address;
-         struct memnode * next;
-      };
-      
-      // head of the memory list
-      struct memnode * memhead;
+   newNode->next = position.current->next;
+   position.current->next = newNode;
+   position.current = newNode;
+   newNode->value = element;
+}
 
-      // keep track of how much space to allocate in the next block.
-      // this should start at 1 and double each time
-      int lastMemblockSize;
+template <typename T>
+void LinkedList<T>::remove(const LinkedList::iterator & position){
+   struct LinkedList<T>::node * oldNode = position.current->next;
 
-      // this is an array of nodes that are ready to use.
-      struct node * nextFreeNode;
-      struct node * lastFreeNode;
+   position.current->next = position.current->next->next;
 
-      // this will keep track of nodes that are incidentally freed.
-      struct node * looseFreeNodes;
+   returnNode(oldNode);
+}
 
-   public:
-
-
-
-     ~LinkedList();
-
-      LinkedList::iterator begin();
-      LinkedList::iterator end();
-
-      void addAfter(T&, const LinkedList::iterator &);
-      void addBefore(T&, const LinkedList::iterator &);
-
-      void remove(LinkedList::iterator &);
-
-};
-
-#endif

@@ -21,6 +21,7 @@ class LinkedList {
 
       // head of the data
       struct node * head;
+      struct node * tail;
 
       // the length of the list
       unsigned long length;
@@ -51,6 +52,9 @@ class LinkedList {
 
       // this will keep track of nodes that are incidentally freed.
       struct node * looseFreeNodes;
+
+      struct node * getNode();
+      void returnNode(struct node *);
 
    public:
 
@@ -100,7 +104,7 @@ class LinkedList {
       void addAfter(const T&, const LinkedList::iterator &);
       void addBefore(const T&, const LinkedList::iterator &);
 
-      void remove(LinkedList::iterator &);
+      void remove(const LinkedList::iterator &);
 
 };
 
