@@ -1,34 +1,23 @@
 #include "LinkedList.h"
 
-#include <cassert>
-
-#define DEFAULT_SIZE 16
-
 // construct a list of a given size
 template <typename T>
 LinkedList<T>::LinkedList(int size)
-   : head(new LinkedList<T>::node),
-     tail(head),
-     lastMemblockSize(size),
-     nextFreeNode(new LinkedList<T>::node[size]),
-     lastFreeNode(nextFreeNode + (size - 1)),
-     freedNodes(NULL),
-     allocatedBlocks(NULL)
-{
-   head->next = NULL;
-}
 
-// construct a list of default size
-// how does this kind of delegating to a different constructor work? (TODO)
-template <typename T>
-LinkedList<T>::LinkedList()
-   : head(new LinkedList<T>::node),
-     tail(head),
-     lastMemblockSize(DEFAULT_SIZE),
-     nextFreeNode(new LinkedList<T>::node[DEFAULT_SIZE]),
-     lastFreeNode(nextFreeNode + (DEFAULT_SIZE - 1)),
-     freedNodes(NULL),
-     allocatedBlocks(NULL)
+   :
+   head(new LinkedList<T>::node),
+   tail(head),
+
+   _length(0),
+
+   allocatedBlocks(NULL),
+   freedNodes(NULL),
+
+   lastMemblockSize(size),
+
+   currentAllocatedBlock(new LinkedList<T>::node[size]),
+   nextFreeNode(currentAllocatedBlock + size - 1)
+
 {
    head->next = NULL;
 }
@@ -36,7 +25,15 @@ LinkedList<T>::LinkedList()
 template <typename T>
 LinkedList<T>::~LinkedList()
 {
-   // TODO
+   if (freedNodes) delete freedNodes;
+   if (allocatedBlocks){
+      while(!allocatedBlocks->empty()){
+         delete[] (LinkedList<T>::node *) allocatedBlocks->popFirst();
+      }
+      delete allocatedBlocks;
+   }
+   delete currentAllocatedBlock;
+   delete head;
 }
 
 template<typename T>
@@ -59,16 +56,18 @@ struct LinkedList<T>::node * LinkedList<T>::getNode(){
    }else{
       // This means we need to allocate a new check of nodes.
       // TODO - remove magic numbers
-      if(nextFreeNode > lastFreeNode){
+      if(nextFreeNode < currentAllocatedBlock){
+
          if(!allocatedBlocks) allocatedBlocks = new LinkedList<void *>;
          allocatedBlocks->addFirst((void *) currentAllocatedBlock);
+
          currentAllocatedBlock = new struct LinkedList<T>::node[DEFAULT_SIZE];
-         nextFreeNode = currentAllocatedBlock;
-         lastFreeNode = nextFreeNode + DEFAULT_SIZE - 1;
+
+         nextFreeNode = currentAllocatedBlock + DEFAULT_SIZE - 1;
       }
 
       newNode = nextFreeNode;
-      ++nextFreeNode;
+      --nextFreeNode;
    }
 
    return newNode;

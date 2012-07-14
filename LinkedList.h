@@ -3,6 +3,8 @@
 
 #include <iterator>
 
+#define DEFAULT_SIZE 16
+
 template <typename T>
 class LinkedList {
    private:
@@ -43,9 +45,8 @@ class LinkedList {
       int lastMemblockSize;
 
       // this is an array of nodes that are ready to use.
-      struct node * nextFreeNode;
-      struct node * lastFreeNode;
       struct node * currentAllocatedBlock;
+      struct node * nextFreeNode;
 
       struct node * getNode();
       void freeNode(struct node *);
@@ -82,11 +83,8 @@ class LinkedList {
             T * operator->();
       };
 
-      LinkedList();
+      LinkedList(int size = DEFAULT_SIZE);
      ~LinkedList();
-
-      // start off with a certain size
-      LinkedList(int size);
 
       LinkedList::iterator begin();
       LinkedList::iterator end();
