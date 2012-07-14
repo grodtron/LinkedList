@@ -7,9 +7,9 @@ using std::endl;
 int main()
 {
 
-   const int length = 16;
+   const int length = 256;
 
-   LinkedList<int> list(length);
+   LinkedList<int> list(8);
 
    int i;
 

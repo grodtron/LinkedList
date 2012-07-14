@@ -38,7 +38,7 @@ bool LinkedList<T>::iterator::operator!= (const LinkedList<T>::iterator & other)
 // dereference
 
 template <typename T>
-T & LinkedList<T>::iterator::operator*(){
+T LinkedList<T>::iterator::operator*(){
    return current->next->value;
 }
 

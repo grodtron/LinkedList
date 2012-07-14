@@ -14,6 +14,8 @@ class LinkedList {
       //////////////////////////////////////////////////////
 
       // the actual struct that is gonna be used in the list
+      // TODO - look into templated typedefs
+      // maybe it's just a "using"?
       struct node{
          struct node * next;
          T value;
@@ -24,7 +26,8 @@ class LinkedList {
       struct node * tail;
 
       // the length of the list
-      unsigned long length;
+      // TODO - keep track of this and add methods to it:
+      size_t _length;
 
       //////////////////////////////////////////////////////
       //                                                  //
@@ -32,15 +35,8 @@ class LinkedList {
       //                                                  //
       //////////////////////////////////////////////////////
 
-      // this will make another internal linked list to manage
-      // memory
-      struct memnode{
-         struct node * address;
-         struct memnode * next;
-      };
-      
-      // head of the memory list
-      struct memnode * memhead;
+      LinkedList<void *> * allocatedBlocks;
+      LinkedList<void *> * freedNodes;
 
       // keep track of how much space to allocate in the next block.
       // this should start at 1 and double each time
@@ -49,15 +45,12 @@ class LinkedList {
       // this is an array of nodes that are ready to use.
       struct node * nextFreeNode;
       struct node * lastFreeNode;
-
-      // this will keep track of nodes that are incidentally freed.
-      struct node * looseFreeNodes;
+      struct node * currentAllocatedBlock;
 
       struct node * getNode();
-      void returnNode(struct node *);
+      void freeNode(struct node *);
 
    public:
-
 
       class iterator : public std::iterator<std::forward_iterator_tag, T>{
          friend class LinkedList;
@@ -85,7 +78,7 @@ class LinkedList {
             bool operator!= (const LinkedList::iterator &);
 
             // dereferencing
-            T & operator*();
+            T   operator*();
             T * operator->();
       };
 
@@ -101,11 +94,16 @@ class LinkedList {
       void addFirst(const T&);
       void addLast(const T&);
 
+      T peekFirst();
+      T popFirst();
+
       void addAfter(const T&, const LinkedList::iterator &);
       void addBefore(const T&, LinkedList::iterator &);
 
       void remove(const LinkedList::iterator &);
 
+      size_t length();
+      bool empty();
 };
 
 #include "LinkedList.cpp"
