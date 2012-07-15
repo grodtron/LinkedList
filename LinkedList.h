@@ -9,15 +9,6 @@ template <typename T>
 class LinkedList {
    private:
 
-      //////////////////////////////////////////////////////
-      //                                                  //
-      //                     Data Stuff                   //
-      //                                                  //
-      //////////////////////////////////////////////////////
-
-      // the actual struct that is gonna be used in the list
-      // TODO - look into templated typedefs
-      // maybe it's just a "using"?
       struct node{
          struct node * next;
          T value;
@@ -28,14 +19,7 @@ class LinkedList {
       struct node * tail;
 
       // the length of the list
-      // TODO - keep track of this and add methods to it:
       size_t _length;
-
-      //////////////////////////////////////////////////////
-      //                                                  //
-      //                    Memory Stuff                  //
-      //                                                  //
-      //////////////////////////////////////////////////////
 
       LinkedList<void *> * allocatedBlocks;
       LinkedList<void *> * freedNodes;
