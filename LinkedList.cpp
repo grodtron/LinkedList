@@ -27,9 +27,22 @@ LinkedList<T>::~LinkedList()
 {
    if (freedNodes) delete freedNodes;
    if (allocatedBlocks){
-      while(!allocatedBlocks->empty()){
-         delete[] (LinkedList<T>::node *) allocatedBlocks->popFirst();
+
+      // iterating is better than popping off, because popping
+      // actually forces the creation of a new list to track the
+      // popped nodes
+      //
+      // Creating a new list is obviously a bit counterproductive
+      // when we're trying to destruct...
+
+      LinkedList<void *>::iterator it  = allocatedBlocks->begin();
+      LinkedList<void *>::iterator end = allocatedBlocks->end();
+
+      while(it != end){
+         delete[] (LinkedList<T>::node *) *it;
+         ++it;
       }
+
       delete allocatedBlocks;
    }
    // TODO - valgrind reports weird problems with the line below.
@@ -62,12 +75,29 @@ struct LinkedList<T>::node * LinkedList<T>::getNode(){
       // TODO - deal with failed allocations (reduce size and retry)
       if(nextFreeNode < currentAllocatedBlock){
 
-         if (!allocatedBlocks) allocatedBlocks = new LinkedList<void *>;
+         if (!allocatedBlocks){
+            allocatedBlocks = new LinkedList<void *>;
+         }
          allocatedBlocks->addFirst((void *) currentAllocatedBlock);
 
-         currentAllocatedBlock = new struct LinkedList<T>::node[DEFAULT_SIZE];
+         // keep doubling the size each time until it overflows
+         lastMemblockSize  = (lastMemblockSize * 2) < lastMemblockSize ? lastMemblockSize : lastMemblockSize * 2;
 
-         nextFreeNode = currentAllocatedBlock + DEFAULT_SIZE - 1;
+         // try to allocate a new block, halving the size if it fails, and keeping on trying
+         bool successfullyAllocated = false;
+         while(!successfullyAllocated && lastMemblockSize > 1){
+            successfullyAllocated = true;
+            try{
+               currentAllocatedBlock = new struct LinkedList<T>::node[lastMemblockSize];
+            }catch(std::bad_alloc & ){
+               lastMemblockSize /= 2;
+               successfullyAllocated = false;
+               // if we are not able to allocate anything, then let the exception bubble up
+               if (lastMemblockSize == 0) throw;
+            }
+         }
+
+         nextFreeNode = currentAllocatedBlock + lastMemblockSize - 1;
       }
 
       newNode = nextFreeNode;
@@ -85,7 +115,9 @@ void LinkedList<T>::freeNode(struct LinkedList<T>::node * oldNode){
    //
    // I guess it is kind of arbitrary/based on guesses/heuristics
    // it seems reasonable to think that half of the list might be freed though...
-   if (!freedNodes) freedNodes = new LinkedList<void *>(DEFAULT_SIZE / 2);
+   if (!freedNodes){
+      freedNodes = new LinkedList<void *>(DEFAULT_SIZE / 2);
+   }
 
    freedNodes->addFirst((void *)oldNode);
 }
