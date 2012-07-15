@@ -32,7 +32,10 @@ LinkedList<T>::~LinkedList()
       }
       delete allocatedBlocks;
    }
-   delete currentAllocatedBlock;
+   // TODO - valgrind reports weird problems with the line below.
+   // I don't see why there would be any and it runs perfectly fine.
+   // should make a stackoverflow question about this later.
+   delete currentAllocatedBlock; // <-- this line
    delete head;
 }
 
@@ -55,10 +58,11 @@ struct LinkedList<T>::node * LinkedList<T>::getNode(){
    // then if not, take it from our current block
    }else{
       // This means we need to allocate a new check of nodes.
-      // TODO - remove magic numbers
+      // TODO - deal with expo-increasing block sizes
+      // TODO - deal with failed allocations (reduce size and retry)
       if(nextFreeNode < currentAllocatedBlock){
 
-         if(!allocatedBlocks) allocatedBlocks = new LinkedList<void *>;
+         if (!allocatedBlocks) allocatedBlocks = new LinkedList<void *>;
          allocatedBlocks->addFirst((void *) currentAllocatedBlock);
 
          currentAllocatedBlock = new struct LinkedList<T>::node[DEFAULT_SIZE];
@@ -76,7 +80,12 @@ struct LinkedList<T>::node * LinkedList<T>::getNode(){
 template<typename T>
 void LinkedList<T>::freeNode(struct LinkedList<T>::node * oldNode){
 
-   if(!freedNodes) freedNodes = new LinkedList<void *>(8);
+   // TODO - figure out a good default size for this in relation to the size
+   // of the rest of the list.
+   //
+   // I guess it is kind of arbitrary/based on guesses/heuristics
+   // it seems reasonable to think that half of the list might be freed though...
+   if (!freedNodes) freedNodes = new LinkedList<void *>(DEFAULT_SIZE / 2);
 
    freedNodes->addFirst((void *)oldNode);
 }
@@ -101,7 +110,6 @@ void LinkedList<T>::addLast(const T & element){
 
    struct LinkedList<T>::node * newNode = getNode();
 
-
    newNode->value = element;
    newNode->next = NULL;
    tail->next = newNode;
@@ -125,7 +133,6 @@ T LinkedList<T>::popFirst(){
    --_length;
    return *temp;
 }
-
 
 // Iterators!
 
