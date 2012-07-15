@@ -2,4 +2,5 @@ Debug/*
 *.vcxproj*
 *.o
 *.swp
+.gdbinit
 test
