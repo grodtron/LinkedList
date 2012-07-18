@@ -3,7 +3,132 @@
 template <typename T>
 void LinkedList<T>::sort(){
    // sort the list in place, updating head->next and tail
-   _quicksort(head->next, &(head->next), &tail);
+   _mergesort(head->next, &(head->next), &tail);
+}
+
+template <typename T>
+void LinkedList<T>::_mergesort(node * list, node ** ret_head, node ** ret_tail){
+   const size_t MSORT_LENGTH_THRESHOLD = 1 << 3;
+
+   node * fast;
+   node * slow;
+   size_t counter;
+
+   // -------------------- split ---------------------------- //
+
+   for(
+         fast = slow = list, counter = 0;
+         fast->next && fast->next->next;
+         slow = slow->next, fast = fast->next->next, ++counter
+      );
+   // TODO - is there any optimizations we could do during this pass?
+   //        would it be worth it to check fast->value agaisnt slow->value and swap
+   //        if they're out of order?
+   //
+   //        Would this actually help that much?
+
+   // --------------------- sort ---------------------------- //
+
+   // At this point, "slow" points to the middle of the list, "fast" points
+   // to the last or second last element, and "counter" holds the length of
+   // the two sublists
+
+   if (counter <= MSORT_LENGTH_THRESHOLD){
+      // if the sublists are less than a certain length threshold, then we
+      // just pass the whole list through insertion sort instead of recursing
+      // down all the way. This is the base case of the recursion
+      _insertionsort(list, ret_head, ret_tail);
+      return;
+   }else{
+
+      // otherwise we recursively sort both of the half lists and then merge them
+
+      node * left;
+      node * left_tail;
+      node * right;
+      node * right_tail;
+
+      _mergesort(slow->next, &left, &left_tail);
+      slow->next = NULL;
+      _mergesort(list, &right, &right_tail);
+
+   // -------------------- merge ---------------------------- //
+
+      // At this point in the algorithm, left and right are both sorted
+
+      // a couple quick checks that allow us to skip a merge if we're lucky (very lucky)
+      // if everything in one list is less than everything in the other, then
+      // we can just concatenate them
+      //
+      // This should give a good best case for nearly sorted input
+      // although my insertion sort has its best case for reverse sorted input...
+      // so maybe that's a bit counter-productive...
+      //
+      // TODO - do some testing with sorted and reverse sorted inputs, see what we end up with.
+      //        hopefully insertion sorts worst case doesn't just defeat this one's best case
+      if( left_tail->value <= right->value ){
+         left_tail->next = right;
+         *ret_head = left;
+         *ret_tail = right_tail;
+         return;
+      }
+      if( right_tail->value <= left->value ){
+         right_tail->next = left;
+         *ret_head = right;
+         *ret_tail = left_tail;
+         return;
+      }
+
+      // ------------ actual merge ----------- //
+
+      // the output list
+      node * out;
+
+      // we need to start the loop with a node, so we grab it
+      // from the start of one of the lists.
+      if(left->value < right->value){
+         out = left;
+         left = left->next;
+      }else{
+         out = right;
+         right = right->next;
+      }
+
+      // we don't keep track of the head inside the merging procedure, so we set
+      // the output head here (it won't change in the loop)
+      *ret_head = out;
+
+      // we merge until we've used up one of the lists
+      while(left && right){
+
+         if(left->value < right->value){
+            out->next = left;
+            out = left;
+            left = left->next;
+         }else{
+            out->next = right;
+            out = right;
+            right = right->next;
+         }
+      }
+
+      // At this point, either left or right is empty, out is the tail of the sorted
+      // output list, and either right or left has one or more elements in it which are
+      // in sorted order and greater than every element in the output list
+      //
+      // We are guaranteed that one list is non-empty because we only take one element from one
+      // of the lists on each iteration, and we only iterate if each list has atleast one
+      // element
+
+      // we simply concatenate the end of the list that we didn't use up onto the output.
+      if(left){
+         out->next = left;
+         *ret_tail = left_tail;
+      }else{
+         out->next = right;
+         *ret_tail = right_tail;
+      }
+   }
 }
 
 template <typename T>

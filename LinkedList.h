@@ -37,6 +37,7 @@ class LinkedList {
 
       void _quicksort(node * list, node ** ret_head, node ** ret_tail);
       void _insertionsort(node * list, node ** ret_head, node ** ret_tail);
+      void _mergesort(node * list, node ** ret_head, node ** ret_tail);
 
    public:
 
