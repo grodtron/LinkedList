@@ -1,5 +1,3 @@
-#include "LinkedList.h"
-
 // construct a list of a given size
 template <typename T>
 LinkedList<T>::LinkedList(int size)
@@ -53,7 +51,7 @@ LinkedList<T>::~LinkedList()
 }
 
 template<typename T>
-struct LinkedList<T>::node * LinkedList<T>::getNode(){
+typename LinkedList<T>::node * LinkedList<T>::getNode(){
 
    struct LinkedList<T>::node * newNode;
 
@@ -186,7 +184,7 @@ typename LinkedList<T>::iterator LinkedList<T>::end(){
 // Insertions!!
 
 template <typename T>
-void LinkedList<T>::addAfter(const T& element, const LinkedList::iterator & position){
+void LinkedList<T>::addAfter(const T& element, const typename LinkedList::iterator & position){
    struct LinkedList<T>::node * newNode = getNode();
 
    newNode->next = position.current->next->next;
@@ -197,7 +195,7 @@ void LinkedList<T>::addAfter(const T& element, const LinkedList::iterator & posi
 }
 
 template <typename T>
-void LinkedList<T>::addBefore(const T& element, LinkedList::iterator & position){
+void LinkedList<T>::addBefore(const T& element, typename LinkedList::iterator & position){
    struct LinkedList<T>::node * newNode = getNode();
 
    newNode->next = position.current->next;
@@ -209,7 +207,7 @@ void LinkedList<T>::addBefore(const T& element, LinkedList::iterator & position)
 }
 
 template <typename T>
-void LinkedList<T>::remove(const LinkedList::iterator & position){
+void LinkedList<T>::remove(const typename LinkedList::iterator & position){
    struct LinkedList<T>::node * oldNode = position.current->next;
 
    position.current->next = position.current->next->next;

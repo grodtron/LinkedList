@@ -2,6 +2,9 @@
 using std::cout;
 using std::endl;
 
+#include <functional>
+// std::less
+
 #include "LinkedList.h"
 
 #include "timer.h"
@@ -33,7 +36,7 @@ int main()
    cout.flush();
 
    tim.start();
-   list.sort();
+   list.sort<std::less<int> >();
    tim.end();
 
    cout << "done" << endl;
@@ -72,6 +75,10 @@ int main()
          cout << "FAILURE! List ain't sorted, and it's not even the right length! (Is " << length_counter << " long, should be " << length << ")" << endl;
       }
    }
+
+   #ifdef _WIN32
+   system("pause");
+   #endif
    
    return 0;
 }

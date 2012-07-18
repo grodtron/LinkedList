@@ -1,7 +1,7 @@
 #include "LinkedList.h"
 
 template <typename T>
-LinkedList<T>::iterator::iterator(LinkedList::node * node) : current(node) {}
+LinkedList<T>::iterator::iterator(typename LinkedList::node * node) : current(node) {}
 
 template <typename T>
 LinkedList<T>::iterator::iterator() : LinkedList<T>::iterator(NULL) {}
@@ -26,12 +26,12 @@ typename LinkedList<T>::iterator LinkedList<T>::iterator::operator++(int){
 // comparisons
 
 template <typename T>
-bool LinkedList<T>::iterator::operator== (const LinkedList<T>::iterator & other){
+bool LinkedList<T>::iterator::operator== (const typename LinkedList<T>::iterator & other){
    return other.current == this->current;
 }
 
 template <typename T>
-bool LinkedList<T>::iterator::operator!= (const LinkedList<T>::iterator & other){
+bool LinkedList<T>::iterator::operator!= (const typename LinkedList<T>::iterator & other){
    return other.current != this->current;
 }
 

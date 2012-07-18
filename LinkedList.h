@@ -50,7 +50,7 @@ class LinkedList {
          private:
             struct LinkedList::node * current;
 
-            iterator(LinkedList::node *);
+            iterator(typename LinkedList::node *);
 
          public:
             // construction and destruction
@@ -63,12 +63,12 @@ class LinkedList {
             // the pointer anyways
 
             // incrementing
-            LinkedList::iterator & operator++();
-            LinkedList::iterator   operator++(int);
+            typename LinkedList::iterator & operator++();
+            typename LinkedList::iterator   operator++(int);
 
             // equality checking
-            bool operator== (const LinkedList::iterator &);
-            bool operator!= (const LinkedList::iterator &);
+            bool operator== (const typename LinkedList::iterator &);
+            bool operator!= (const typename LinkedList::iterator &);
 
             // dereferencing
             T   operator*();
@@ -78,8 +78,8 @@ class LinkedList {
       LinkedList(int size = DEFAULT_SIZE);
      ~LinkedList();
 
-      LinkedList::iterator begin();
-      LinkedList::iterator end();
+      typename LinkedList::iterator begin();
+      typename LinkedList::iterator end();
 
       void addFirst(const T&);
       void addLast(const T&);
@@ -87,10 +87,10 @@ class LinkedList {
       T peekFirst();
       T popFirst();
 
-      void addAfter(const T&, const LinkedList::iterator &);
-      void addBefore(const T&, LinkedList::iterator &);
+      void addAfter(const T&, const typename LinkedList::iterator &);
+      void addBefore(const T&, typename LinkedList::iterator &);
 
-      void remove(const LinkedList::iterator &);
+      void remove(const typename LinkedList::iterator &);
 
       size_t length();
       bool empty();
