@@ -1,6 +1,6 @@
 exe=test
 ldflags=-lrt
-ccflags=-ggdb -Wall -Wextra
+ccflags=-std=c++0x -ggdb -Wall -Wextra
 cc=g++
 
 .PHONY: all clean

@@ -3,6 +3,8 @@
 
 #include <iterator>
 
+#include <functional>
+
 #define DEFAULT_SIZE 16
 
 template <typename T>
@@ -36,7 +38,9 @@ class LinkedList {
       void freeNode(node *);
 
       void _quicksort(node * list, node ** ret_head, node ** ret_tail);
+      template <typename Comparator>
       void _insertionsort(node * list, node ** ret_head, node ** ret_tail);
+      template <typename Comparator>
       void _mergesort(node * list, node ** ret_head, node ** ret_tail);
 
    public:
@@ -91,6 +95,11 @@ class LinkedList {
       size_t length();
       bool empty();
 
+      #ifdef __GXX_EXPERIMENTAL_CXX0X__
+      template <typename Comparator=std::less<T> >
+      #else
+      template <typename Comparator>
+      #endif
       void sort();
 };
 

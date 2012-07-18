@@ -1,18 +1,22 @@
 #include "LinkedList.h"
 
 template <typename T>
+template <typename Comparator>
 void LinkedList<T>::sort(){
    // sort the list in place, updating head->next and tail
-   _mergesort(head->next, &(head->next), &tail);
+   _mergesort<Comparator>(head->next, &(head->next), &tail);
 }
 
 template <typename T>
+template <typename Comparator>
 void LinkedList<T>::_mergesort(node * list, node ** ret_head, node ** ret_tail){
    const size_t MSORT_LENGTH_THRESHOLD = 1 << 3;
 
    node * fast;
    node * slow;
    size_t counter;
+
+   Comparator sortsBefore;
 
    // -------------------- split ---------------------------- //
 
@@ -37,7 +41,7 @@ void LinkedList<T>::_mergesort(node * list, node ** ret_head, node ** ret_tail){
       // if the sublists are less than a certain length threshold, then we
       // just pass the whole list through insertion sort instead of recursing
       // down all the way. This is the base case of the recursion
-      _insertionsort(list, ret_head, ret_tail);
+      _insertionsort<Comparator>(list, ret_head, ret_tail);
       return;
    }else{
 
@@ -48,9 +52,9 @@ void LinkedList<T>::_mergesort(node * list, node ** ret_head, node ** ret_tail){
       node * right;
       node * right_tail;
 
-      _mergesort(slow->next, &left, &left_tail);
+      _mergesort<Comparator>(slow->next, &left, &left_tail);
       slow->next = NULL;
-      _mergesort(list, &right, &right_tail);
+      _mergesort<Comparator>(list, &right, &right_tail);
 
    // -------------------- merge ---------------------------- //
 
@@ -66,13 +70,13 @@ void LinkedList<T>::_mergesort(node * list, node ** ret_head, node ** ret_tail){
       //
       // TODO - do some testing with sorted and reverse sorted inputs, see what we end up with.
       //        hopefully insertion sorts worst case doesn't just defeat this one's best case
-      if( left_tail->value <= right->value ){
+      if( sortsBefore(left_tail->value, right->value) ){
          left_tail->next = right;
          *ret_head = left;
          *ret_tail = right_tail;
          return;
       }
-      if( right_tail->value <= left->value ){
+      if( sortsBefore(right_tail->value, left->value) ){
          right_tail->next = left;
          *ret_head = right;
          *ret_tail = left_tail;
@@ -86,7 +90,7 @@ void LinkedList<T>::_mergesort(node * list, node ** ret_head, node ** ret_tail){
 
       // we need to start the loop with a node, so we grab it
       // from the start of one of the lists.
-      if(left->value < right->value){
+      if(sortsBefore(left->value, right->value)){
          out = left;
          left = left->next;
       }else{
@@ -101,7 +105,7 @@ void LinkedList<T>::_mergesort(node * list, node ** ret_head, node ** ret_tail){
       // we merge until we've used up one of the lists
       while(left && right){
 
-         if(left->value < right->value){
+         if(sortsBefore(left->value, right->value)){
             out->next = left;
             out = left;
             left = left->next;
@@ -260,6 +264,7 @@ void LinkedList<T>::_quicksort(node * list, node ** ret_head, node ** ret_tail){
 }
 
 template <typename T>
+template <typename Comparator>
 void LinkedList<T>::_insertionsort(node * list, node ** ret_head, node ** ret_tail){
    // basic idea is to take elements from unsorted list and place them into sorted list
    // one by one in the correct position
@@ -268,6 +273,8 @@ void LinkedList<T>::_insertionsort(node * list, node ** ret_head, node ** ret_ta
 
    // one little oddity is that this will have an inverted best and worst case.
    // E.g. a reverse sorted input is the best case, and a sorted input is the worst case...
+
+   Comparator sortsBefore;
 
    node * temp;
 
@@ -302,7 +309,7 @@ void LinkedList<T>::_insertionsort(node * list, node ** ret_head, node ** ret_ta
 
       while(curr){
 
-         if(temp->value <= curr->value){
+         if(sortsBefore(temp->value, curr->value)){
             // in this case, we know where to insert
             break;
          }else{
