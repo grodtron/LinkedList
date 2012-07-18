@@ -1,5 +1,5 @@
 exe=test
-ldflags=
+ldflags=-lrt
 ccflags=-ggdb -Wall -Wextra
 cc=g++
 
@@ -11,5 +11,8 @@ clean:
 	@rm -f *.o
 	@rm -f $(exe)
 
-test: main.cpp LinkedList.cpp LinkedList_iterator.cpp LinkedList_sort.cpp LinkedList.h
-	$(cc) $(ccflags) $(ldflags) $< -o $@
+test: main.cpp timer.o LinkedList.cpp LinkedList_iterator.cpp LinkedList_sort.cpp LinkedList.h
+	$(cc) $(ccflags) $< timer.o $(ldflags) -o $@
+
+timer.o: timer.cpp timer.h
+	$(cc) $(ccflags) -c $< $(ldflags) -o $@
