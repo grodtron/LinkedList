@@ -11,5 +11,5 @@ clean:
 	@rm -f *.o
 	@rm -f $(exe)
 
-test: main.cpp LinkedList.cpp LinkedList_iterator.cpp LinkedList.h
+test: main.cpp LinkedList.cpp LinkedList_iterator.cpp LinkedList_sort.cpp LinkedList.h
 	$(cc) $(ccflags) $(ldflags) $< -o $@

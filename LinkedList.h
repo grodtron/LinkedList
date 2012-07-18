@@ -9,14 +9,14 @@ template <typename T>
 class LinkedList {
    private:
 
-      struct node{
+      typedef struct node{
          struct node * next;
          T value;
-      };
+      } node;
 
       // head of the data
-      struct node * head;
-      struct node * tail;
+      node * head;
+      node * tail;
 
       // the length of the list
       size_t _length;
@@ -29,11 +29,13 @@ class LinkedList {
       int lastMemblockSize;
 
       // this is an array of nodes that are ready to use.
-      struct node * currentAllocatedBlock;
-      struct node * nextFreeNode;
+      node * currentAllocatedBlock;
+      node * nextFreeNode;
 
-      struct node * getNode();
-      void freeNode(struct node *);
+      node * getNode();
+      void freeNode(node *);
+
+      void _quicksort(node * list, node ** ret_head, node ** ret_tail);
 
    public:
 
@@ -86,9 +88,12 @@ class LinkedList {
 
       size_t length();
       bool empty();
+
+      void sort();
 };
 
 #include "LinkedList.cpp"
 #include "LinkedList_iterator.cpp"
+#include "LinkedList_sort.cpp"
 
 #endif

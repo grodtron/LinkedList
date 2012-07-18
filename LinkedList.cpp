@@ -122,6 +122,10 @@ void LinkedList<T>::freeNode(struct LinkedList<T>::node * oldNode){
    freedNodes->addFirst((void *)oldNode);
 }
 
+// head->next points to the first element of the list
+// head itself does not represent an element of the list.
+// TODO - why isn't head just the first element or NULL otherwise?
+//        find out why, and then change it here.
 template<typename T>
 void LinkedList<T>::addFirst(const T & element){
 
@@ -137,6 +141,7 @@ void LinkedList<T>::addFirst(const T & element){
 
 }
 
+// tail actually is the last node of the list
 template<typename T>
 void LinkedList<T>::addLast(const T & element){
 
