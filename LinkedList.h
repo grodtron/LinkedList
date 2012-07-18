@@ -36,6 +36,7 @@ class LinkedList {
       void freeNode(node *);
 
       void _quicksort(node * list, node ** ret_head, node ** ret_tail);
+      void _insertionsort(node * list, node ** ret_head, node ** ret_tail);
 
    public:
 
@@ -90,6 +91,7 @@ class LinkedList {
       bool empty();
 
       void sort();
+      void i_sort();
 };
 
 #include "LinkedList.cpp"

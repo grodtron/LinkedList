@@ -16,7 +16,7 @@ int main()
 
    srand(time(0));
 
-   const int length = 1<<20;
+   const int length = 1<<17;
 
    timer tim;
 
@@ -33,7 +33,7 @@ int main()
    cout.flush();
 
    tim.start();
-   list.sort();
+   list.i_sort();
    tim.end();
 
    cout << "done" << endl;
