@@ -91,7 +91,6 @@ class LinkedList {
       bool empty();
 
       void sort();
-      void i_sort();
 };
 
 #include "LinkedList.cpp"

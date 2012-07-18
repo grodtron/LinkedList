@@ -4,23 +4,22 @@ template <typename T>
 void LinkedList<T>::sort(){
    // sort the list in place, updating head->next and tail
    _quicksort(head->next, &(head->next), &tail);
-
-}
-
-template <typename T>
-void LinkedList<T>::i_sort(){
-   // sort the list in place, updating head->next and tail
-   _insertionsort(head->next, &(head->next), &tail);
-
 }
 
 template <typename T>
 void LinkedList<T>::_quicksort(node * list, node ** ret_head, node ** ret_tail){
 
+   // insertion sort will take care of lists shorter than this threshold
+   // Extremely non-rigorous and unscientific testing has shown that this
+   // value works. Shaves off around 1 second (5%) when sorting ~16,000,000 integers
+   const size_t QSORT_LENGTH_THRESHOLD = 1 << 4;
+
    node * lower        = NULL;
    node * lower_tail   = NULL;
+   size_t lower_len    = 0;
    node * greater      = NULL;
    node * greater_tail = NULL;
+   size_t greater_len  = 0;
    node * equal        = NULL;
    node * equal_tail   = NULL;
 
@@ -28,7 +27,8 @@ void LinkedList<T>::_quicksort(node * list, node ** ret_head, node ** ret_tail){
 
    const T & pivot = list->value;
 
-   // partition
+   // ------------------- partition --------------------------- //
+
    while(list){
 
       temp = list;
@@ -53,10 +53,12 @@ void LinkedList<T>::_quicksort(node * list, node ** ret_head, node ** ret_tail){
          if (!lower) lower_tail = temp;
          temp->next = lower;
          lower = temp;
+         ++lower_len;
       }else{
          if (!greater) greater_tail = temp;
          temp->next = greater;
          greater = temp;
+         ++greater_len;
       }
    }
 
@@ -71,11 +73,15 @@ void LinkedList<T>::_quicksort(node * list, node ** ret_head, node ** ret_tail){
    //              have at least one element (the pivot itself).
    //              This list IS sorted (all the elements are "equal" to each other in terms of sort order)
 
-   // recurse
+   // -------------------- recurse -------------------------- //
 
    if (lower && lower->next){
       // there is 2 or more elements in lower, so it must be sorted
-      _quicksort(lower, &lower, &lower_tail);
+      if (lower_len > QSORT_LENGTH_THRESHOLD){
+         _quicksort(lower, &lower, &lower_tail);
+      }else{
+         _insertionsort(lower, &lower, &lower_tail);
+      }
    }else{
       // there is 0 or 1 elements in lower, so either its head is its tail,
       // or its head is NULL and it's tail should be NULLed
@@ -84,7 +90,11 @@ void LinkedList<T>::_quicksort(node * list, node ** ret_head, node ** ret_tail){
 
    // same as above
    if (greater && greater->next){
-      _quicksort(greater, &greater, &greater_tail);
+      if (greater_len > QSORT_LENGTH_THRESHOLD){
+         _quicksort(greater, &greater, &greater_tail);
+      }else{
+         _insertionsort(greater, &greater, &greater_tail);
+      }
    }else{
       greater_tail = greater;
    }
@@ -94,7 +104,7 @@ void LinkedList<T>::_quicksort(node * list, node ** ret_head, node ** ret_tail){
    // elements in greater. To form one sorted list, we just have to concatenate these 3
    // properly
 
-   // recombine
+   // --------------------- recombine ------------------------ //
 
    // We start with the lower list. If it exists, then the output just
    // becomes equal to it. Otherwise, it is set to NULL, which is what we would want anyway
@@ -127,12 +137,12 @@ void LinkedList<T>::_quicksort(node * list, node ** ret_head, node ** ret_tail){
 template <typename T>
 void LinkedList<T>::_insertionsort(node * list, node ** ret_head, node ** ret_tail){
    // basic idea is to take elements from unsorted list and place them into sorted list
-   // one by one.
+   // one by one in the correct position
 
-   // After each pass list should be smaller by one.
+   // After each pass the unsorted list is smaller by one and the sorted list is larger by one
 
-   // one little problem is that this will reverse the sort order. E.g. a reverse sorted
-   // input is the best case, and a sorted input is the worst case...
+   // one little oddity is that this will have an inverted best and worst case.
+   // E.g. a reverse sorted input is the best case, and a sorted input is the worst case...
 
    node * temp;
 
@@ -167,7 +177,7 @@ void LinkedList<T>::_insertionsort(node * list, node ** ret_head, node ** ret_ta
 
       while(curr){
 
-         if(temp->value < curr->value){
+         if(temp->value <= curr->value){
             // in this case, we know where to insert
             break;
          }else{
@@ -177,7 +187,9 @@ void LinkedList<T>::_insertionsort(node * list, node ** ret_head, node ** ret_ta
          }
       }
 
-      // we've found the right spot, so we insert our node
+      // either we've found a spot in the list, or we've traversed
+      // the entire list. In either case we now know where to insert
+      // our new element
 
       temp->next = curr;
 

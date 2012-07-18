@@ -16,7 +16,7 @@ int main()
 
    srand(time(0));
 
-   const int length = 1<<17;
+   const size_t length = 1<<24;
 
    timer tim;
 
@@ -24,7 +24,7 @@ int main()
 
    cout << "constructing list of " << length << " random integers... ";
    cout.flush();
-   for(int i = 0; i < length; ++i){
+   for(size_t i = 0; i < length; ++i){
       list.addFirst( rand() % (length << 1) );
    }
    cout << "done" << endl;
@@ -33,7 +33,7 @@ int main()
    cout.flush();
 
    tim.start();
-   list.i_sort();
+   list.sort();
    tim.end();
 
    cout << "done" << endl;
@@ -45,21 +45,32 @@ int main()
 
    bool sorted = true;
 
+   size_t length_counter = 0;
    int prev = *it;
    ++it;
+   ++length_counter;
 
-   cout << "Verifying sortedness of list... ";
+   cout << "Verifying sortedness and length of list... ";
    cout.flush();
    for( ; sorted && (it != end); ++it){
       sorted = sorted && (prev <= *it);
       prev = *it;
+      ++length_counter;
    }
    cout << "done" << endl;
 
    if(sorted){
-      cout << "SUCCESS! List is sorted" << endl;
+      if(length_counter == length){
+         cout << "SUCCESS! List is sorted and the correct length!" << endl;
+      }else{
+         cout << "FAILURE! List is sorted, but the wrong length! (Is " << length_counter << " long, should be " << length << ")" << endl;
+      }
    }else{
-      cout << "FAILURE! List ain't sorted" << endl;
+      if(length_counter == length){
+         cout << "FAILURE! List ain't sorted (but it is the right length)" << endl;
+      }else{
+         cout << "FAILURE! List ain't sorted, and it's not even the right length! (Is " << length_counter << " long, should be " << length << ")" << endl;
+      }
    }
    
    return 0;
